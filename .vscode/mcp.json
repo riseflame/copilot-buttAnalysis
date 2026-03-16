@@ -2,14 +2,20 @@
   "servers": {
     "markitdown": {
       "type": "stdio",
-      "command": "/home/lzz/.conda/envs/analysis/bin/markitdown-mcp"
+      "command": "conda",
+      "args": ["run", "-n", "analysis", "--no-capture-output", "markitdown-mcp"]
     },
     "yfinance": {
       "type": "stdio",
-      "command": "/home/lzz/.conda/envs/analysis/bin/python",
+      "command": "conda",
       "args": [
-        "/home/lzz/copilot-buttAnalysis/yahoo-finance-mcp/server.py"
-      ]
+        "run", "-n", "analysis", "--no-capture-output",
+        "python", "${workspaceFolder}/yahoo-finance-mcp/server.py"
+      ],
+      "env": {
+        "HTTP_PROXY": "http://127.0.0.1:5780",
+        "HTTPS_PROXY": "http://127.0.0.1:5780"
+      }
     }
   }
 }
