@@ -16,6 +16,11 @@
         "HTTP_PROXY": "http://127.0.0.1:5780",
         "HTTPS_PROXY": "http://127.0.0.1:5780"
       }
+    },
+    "akshare": {
+      "type": "stdio",
+      "command": "conda",
+      "args": ["run", "-n", "analysis", "--no-capture-output", "akshare-one-mcp"]
     }
   }
 }

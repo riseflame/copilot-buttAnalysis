@@ -4,6 +4,7 @@ description: "Use when: converting financial report PDFs to structured JSON via 
 tools: [execute, read, edit, search]
 user-invocable: true
 argument-hint: "pdf_files company_name — 如: report/000651_2024_年报.pdf 格力电器"
+model: Claude Opus 4.6 (copilot)
 ---
 
 # PDF 结构化提取 Agent

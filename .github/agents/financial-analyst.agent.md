@@ -4,6 +4,7 @@ description: "Use when: performing deep financial analysis on annual/interim rep
 tools: [execute, read, search, edit, web]
 user-invocable: true
 argument-hint: "pdf_files [data_pack_files] company_name — 如: report/000651_2024_年报.pdf tempFile/000651_2024_年报_data_pack.md 格力电器"
+model: Claude Opus 4.6 (copilot)
 ---
 
 # 财报深度分析 Agent
@@ -70,6 +71,9 @@ mcp_markitdown_convert_to_markdown(uri=<pdf_absolute_path>)
 | 每股收益 EPS | | | |
 | 分红/每股股利 | | | |
 | 经营现金流净额 | | | |
+| **现金及现金等价物** | | | |
+| **有息负债合计** | | | |
+| **净现金/净负债** | | | |
 | 总资产/总负债/净资产 | | | |
 | 资产负债率 | | | |
 | ROE | | | |
@@ -197,14 +201,31 @@ mcp_markitdown_convert_to_markdown(uri=<pdf_absolute_path>)
 - 商誉及无形资产占比
 - 固定资产折旧情况
 
-### 5.3 负债结构
+### 5.3 现金与负债总览
+
+必须输出以下汇总表：
+
+| 项目 | 本期末 | 上期末 | 变化 |
+|------|--------|--------|------|
+| 现金及现金等价物 | | | |
+| 受限制存款 | | | |
+| **自由现金合计** | | | |
+| 短期银行借款 | | | |
+| 长期银行借款 | | | |
+| 其他有息负债（含关联方借款、租赁负债等） | | | |
+| **有息负债合计** | | | |
+| **净现金/净负债** | | | |
+
+> 净现金 = 现金及现金等价物 - 有息负债合计。正数为净现金状态，负数为净负债状态。
+
+### 5.4 负债结构细节
 
 - 有息负债总额、短期/长期占比
 - 利率水平（加权平均利率如可获取）
 - 债务到期分布
 - 杠杆趋势（加杠杆 or 去杠杆）
 
-### 5.4 关联交易与或有负债
+### 5.5 关联交易与或有负债
 
 - 引用 data_pack 中 P4（关联交易）、P6（或有负债）数据
 - 评估关联交易的合理性和规模
