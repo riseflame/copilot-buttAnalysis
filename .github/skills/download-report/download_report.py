@@ -46,7 +46,7 @@ BASE_HEADERS = {
 }
 
 URL_PATTERN = re.compile(
-    r"^https?://(stockn\.xueqiu\.com|[\w.-]*10jqka\.com\.cn|static\.cninfo\.com\.cn)/.+\.(pdf|PDF)$",
+    r"^https?://(stockn\.xueqiu\.com|[\w.-]*10jqka\.com\.cn|static\.cninfo\.com\.cn|www1?\.hkexnews\.hk)/.+\.(pdf|PDF)$",
     re.IGNORECASE,
 )
 
@@ -58,6 +58,8 @@ def get_headers(url):
         headers["Referer"] = "https://10jqka.com.cn/"
     elif "cninfo.com.cn" in url:
         headers["Referer"] = "http://www.cninfo.com.cn/"
+    elif "hkexnews.hk" in url:
+        headers["Referer"] = "https://www.hkexnews.hk/"
     else:
         headers["Referer"] = "https://xueqiu.com/"
     return headers

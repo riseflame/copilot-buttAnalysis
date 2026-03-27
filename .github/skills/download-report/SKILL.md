@@ -81,28 +81,87 @@ The script prints a structured block between `---RESULT---` and `---END---`.
 
 HK stocks are NOT fully covered by cninfo API. Use **WebSearch** to find the PDF.
 
-### Build the search query:
+### Important: Distinguish Report Types
 
-- 年报/annual: `site:stockn.xueqiu.com {formatted_code} annual report {year}`
-- 中报/interim: `site:stockn.xueqiu.com {formatted_code} interim report {year}`
+港股有两类重要文件，搜索策略不同：
+
+| 类型 | 英文关键词 | 中文关键词 | 发布时间 | 内容 |
+|------|-----------|-----------|---------|------|
+| **业绩公告** (Results Announcement) | `annual results` / `interim results` | 全年业绩 / 中期业绩 | 财年结束后 ~3个月 | 精简版，含P&L、资产负债表、分红 |
+| **年度报告** (Annual Report) | `annual report` | 年度报告 / 年报 | 业绩公告后 ~1-2个月 | 完整版，含附注、管理层讨论 |
+
+**若用户要求的是"业绩公告"或刚公布不久的业绩**，优先搜索 Results Announcement。
+**若用户要求"年报"且发布已超过2个月**，搜索 Annual Report 完整版。
+
+### Search Strategy（按优先级顺序）
+
+#### ① HKEXnews 直接搜索（推荐，最可靠）
+
+使用 **Yahoo Search** 搜索 HKEXnews 上的 PDF（Yahoo Search 对 hkexnews 索引最好，Google/Bing 经常被 JS 挑战拦截）：
+
+```
+site:hkexnews.hk {formatted_code} {year} annual results announcement
+```
+
+例如搜索中国民航信息网络 2025 业绩公告：
+```
+site:hkexnews.hk 00696 2025 annual results announcement
+```
+
+**HKEXnews URL 格式规律：**
+```
+https://www1.hkexnews.hk/listedco/listconews/sehk/{YYYY}/{MMDD}/{YYYYMMDD}{5位序号}.pdf
+```
+- `{YYYY}` = 发布年份
+- `{MMDD}` = 发布月日
+- `{YYYYMMDD}{5位序号}` = 日期+递增序号
+
+> **实战经验**：2025年度业绩通常在2026年3-4月发布，所以 URL 中的年份是发布年而非报告年。
+
+#### ② 雪球搜索
+
+```
+site:stockn.xueqiu.com {formatted_code} annual report {year}
+```
+
+#### ③ 同花顺搜索
+
+```
+site:notice.10jqka.com.cn {formatted_code} {search_keyword} {year}
+```
+
+#### ④ 通用搜索（兜底）
+
+如以上均无结果，去掉 `site:` 限制做通用搜索。
+
+### Search Engine Selection
+
+| 搜索引擎 | 适用场景 | 注意事项 |
+|----------|---------|---------|
+| **Yahoo Search** | 搜 hkexnews.hk PDF | ✅ 最佳，直接返回 PDF 链接 |
+| **Bing** | 搜雪球/同花顺 | ⚠️ 搜 hkexnews 时常被 JS 挑战拦截 |
+| **Google** | 通用兜底 | ⚠️ 同上，且可能需要 CAPTCHA |
+
+**Yahoo Search URL 构造：**
+```
+https://search.yahoo.com/search?p={url_encoded_query}
+```
 
 ### If no year was specified:
 1. Try current year first
 2. If no results, try previous year
 3. Pick the most recent matching result
 
-### If no results found:
-1. Retry with **同花顺**: `site:notice.10jqka.com.cn {formatted_code} {search_keyword} {year}`
-   - Can also try with company name if known
-2. If still no results, retry **without** any `site:` prefix as a last resort.
-
 ## Step 3: Extract PDF Links (HK only)
 
 From the search results, filter URLs that match PDF links from supported sources:
 ```
+https://www1.hkexnews.hk/listedco/listconews/sehk/.../*.pdf   ← 首选
 https://stockn.xueqiu.com/.../*.pdf
 https://notice.10jqka.com.cn/.../*.pdf
 ```
+
+> **优先选择 hkexnews.hk 链接**：这是港交所官方披露平台，数据最权威、最完整。
 
 ## Step 4: Identify the Correct Report (HK only)
 
@@ -132,6 +191,14 @@ python3 download_report.py \
   --year "<year>" \
   --save-dir "."
 ```
+
+**支持的 URL 来源（download_report.py 白名单）：**
+- `stockn.xueqiu.com`
+- `notice.10jqka.com.cn` / `*.10jqka.com.cn`
+- `static.cninfo.com.cn`
+- `www1.hkexnews.hk` / `www.hkexnews.hk`
+
+> **⚠️ 网络问题处理**：若终端无法访问外网（DNS 解析失败），可使用 `open_browser_page` 工具在用户浏览器中打开 PDF URL，提示用户手动保存到 `report/` 目录。
 
 ### Parse the output
 

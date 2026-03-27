@@ -78,12 +78,45 @@ python3 .github/skills/download-report/query_report.py \
 
 ### 港股（stock_code 为 1-5 位数字）
 
-1. 使用 web search 搜索 PDF 链接：
-   - 年报：`site:stockn.xueqiu.com {formatted_code} annual report {year}`
-   - 中报：`site:stockn.xueqiu.com {formatted_code} interim report {year}`
-2. 从搜索结果中提取 `.pdf` URL
-3. 排除含以下关键字的结果：摘要, 审计报告, 公告, 利润分配, ESG, summary, 更正
-4. 使用 `download_report.py` 下载：
+港股搜索 PDF 链接按以下**优先级顺序**尝试：
+
+#### 策略 ①：Yahoo Search + HKEXnews（推荐，成功率最高）
+
+使用 `fetch_webpage` 工具搜索 Yahoo：
+
+```
+https://search.yahoo.com/search?p=site%3Ahkexnews.hk+{formatted_code}+{year}+annual+results+announcement
+```
+
+> **为什么用 Yahoo**：Google/Bing 搜 hkexnews.hk 经常被 JS 挑战拦截，Yahoo 直接返回 PDF 链接。
+
+从搜索结果中提取 `https://www1.hkexnews.hk/listedco/listconews/sehk/.../*.pdf` 链接。
+
+**HKEXnews URL 格式规律：**
+```
+https://www1.hkexnews.hk/listedco/listconews/sehk/{发布年}/{月日}/{发布年月日}{5位序号}.pdf
+```
+
+> **注意**：报告年 ≠ 发布年。2025年度业绩在2026年3-4月发布，URL 中是 `/2026/0327/`。
+
+#### 策略 ②：雪球搜索
+
+搜索关键词：`site:stockn.xueqiu.com {formatted_code} annual report {year}`
+
+#### 策略 ③：同花顺搜索
+
+搜索关键词：`site:notice.10jqka.com.cn {formatted_code} {search_keyword} {year}`
+
+#### 策略 ④：通用搜索（兜底）
+
+去掉 `site:` 限制，直接搜索公司名 + 报告类型。
+
+---
+
+从搜索结果中提取 `.pdf` URL 后：
+- **优先选择 hkexnews.hk 链接**（官方权威来源）
+- 排除含以下关键字的结果：摘要, 审计报告, 公告, 利润分配, ESG, summary, 更正
+- 使用 `download_report.py` 下载：
 
 ```bash
 conda activate analysis
@@ -94,6 +127,8 @@ python3 .github/skills/download-report/download_report.py \
   --year "<year>" \
   --save-dir "report/"
 ```
+
+
 
 ---
 
